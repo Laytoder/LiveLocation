@@ -3,12 +3,24 @@ const mongoose = require('mongoose');
 const config = require('./config/database');
 mongoose.connect(config.database,
  {useNewUrlParser: true, useUnifiedTopology:true,useFindAndModify: false});
-const UserLocation = require('./models/userLocation');
+let UserLocation = require('./models/userLocation');
 const app = express();
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
 app.use(express.static('public'));
 app.use(express.json());
+
+
+//db connection management
+let db = mongoose.connection;
+db.once('open', ()=> {
+  console.log('connection success DB');
+});
+db.on('error', (err)=> {
+  console.log(err);
+});
+
+
 
 //handling entry and updation of user location requests
 app.post('/api', (req, res) => {
@@ -23,7 +35,7 @@ app.post('/api', (req, res) => {
 		else if(!foundObject) {
 			//create new entry
 			const userLocation = new UserLocation({
-				_id: new mongoose.Types.ObjectId(),
+				//_id: new mongoose.Types.ObjectId(), #you dont need this!
 				name: username,
 				latitude: lat,
 				longitude: lon
